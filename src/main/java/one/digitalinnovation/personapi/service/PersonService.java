@@ -24,10 +24,10 @@ public class PersonService {
     public MessageResponseDTO createPerson(PersonDTO personDTO){
         Person personToSave = personMapper.toModel(personDTO);
 
-        repository.save(personToSave);
+        Person savedPerson  = repository.save(personToSave);
         return MessageResponseDTO
                 .builder()
-                .message("Created Person with ID "+ personToSave.getId())
+                .message("Created Person with ID "+ savedPerson.getId())
                 .build();
 
     }
