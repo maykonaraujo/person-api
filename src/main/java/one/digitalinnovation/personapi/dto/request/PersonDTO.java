@@ -21,21 +21,21 @@ public class PersonDTO {
 
     private Long id;
 
-    @NotEmpty(message = "Atenção! O campo firstName é obrigatório!")
+    @NotEmpty
     @Size(min = 2, max = 100)
     private String firstName;
 
-    @NotEmpty(message = "Atenção! O campo lastName é obrigatório!")
+    @NotEmpty
     @Size(min = 2, max = 100)
     private String lastName;
 
-    @NotEmpty(message = "Atenção! O campo cpf é obrigatório!")
+    @NotEmpty
     @CPF
     private String cpf;
 
     private String birthDate;
 
-    @NotEmpty(message = "Atenção! O campo phones é obrigatório")
+    @NotEmpty
     @Valid
     private List<Phone> phones;
 }
