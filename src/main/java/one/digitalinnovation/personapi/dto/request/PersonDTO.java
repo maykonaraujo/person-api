@@ -25,17 +25,18 @@ public class PersonDTO {
     @Size(min = 2, max = 100)
     private String firstName;
 
-    @NotEmpty
+    @NotEmpty(message = "O campo Last Name é obrigatório!")
     @Size(min = 2, max = 100)
     private String lastName;
 
-    @NotEmpty
+    @NotEmpty(message = "O campo CPF é obrigatório!")
     @CPF
     private String cpf;
 
+    @NotEmpty(message = "O campo Birth Date é obrigatório!")
     private String birthDate;
 
-    @NotEmpty
+    @NotEmpty(message = "O campo Phone é obrigatório!")
     @Valid
     private List<Phone> phones;
 }
