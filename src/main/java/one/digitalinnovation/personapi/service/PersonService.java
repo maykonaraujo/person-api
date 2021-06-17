@@ -7,12 +7,19 @@ import one.digitalinnovation.personapi.exception.PersonNotFoundException;
 import one.digitalinnovation.personapi.mapper.PersonMapper;
 import one.digitalinnovation.personapi.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.annotation.Resource;
+import javax.annotation.Resources;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class PersonService {
@@ -20,11 +27,11 @@ public class PersonService {
     private PersonRepository repository;
     private final PersonMapper personMapper = PersonMapper.INSTANCE;
 
+
     @Autowired
     public PersonService(PersonRepository repository) {
         this.repository = repository;
     }
-
 
     public MessageResponseDTO createPerson(PersonDTO personDTO) {
         Person personToSave = personMapper.toModel(personDTO);
@@ -42,9 +49,19 @@ public class PersonService {
     }
 
 
-    public PersonDTO findById(Long id) throws PersonNotFoundException {
-        Person person = verifyIfExists(id);
-        return personMapper.toDTO(person);
+
+    public EntityModel<Person> findById(Long id) throws PersonNotFoundException {
+
+        verifyIfExists(id);
+        Optional<Person> student = repository.findById(id);
+
+        EntityModel<Person> resource = EntityModel.of(student.get());
+
+        Link linkTo = linkTo(methodOn(this.getClass()).listAll()).withRel("persons");
+
+        resource.add(linkTo);
+
+        return resource;
     }
 
     public void deleteById(Long id) throws PersonNotFoundException {
