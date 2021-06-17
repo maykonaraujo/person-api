@@ -1,7 +1,9 @@
 package one.digitalinnovation.personapi.service;
 
+import one.digitalinnovation.personapi.controller.PersonController;
 import one.digitalinnovation.personapi.dto.request.PersonDTO;
 import one.digitalinnovation.personapi.dto.response.MessageResponseDTO;
+import one.digitalinnovation.personapi.dto.response.PersonModelAssembler;
 import one.digitalinnovation.personapi.entity.Person;
 import one.digitalinnovation.personapi.exception.PersonNotFoundException;
 import one.digitalinnovation.personapi.mapper.PersonMapper;
@@ -9,13 +11,9 @@ import one.digitalinnovation.personapi.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.annotation.Resources;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -26,11 +24,13 @@ public class PersonService {
 
     private PersonRepository repository;
     private final PersonMapper personMapper = PersonMapper.INSTANCE;
+    private final PersonModelAssembler personModelAssembler;
 
 
     @Autowired
-    public PersonService(PersonRepository repository) {
+    public PersonService(PersonRepository repository, PersonModelAssembler personModelAssembler) {
         this.repository = repository;
+        this.personModelAssembler = personModelAssembler;
     }
 
     public MessageResponseDTO createPerson(PersonDTO personDTO) {
@@ -41,27 +41,19 @@ public class PersonService {
 
     }
 
-    public List<PersonDTO> listAll() {
-        List<Person> allPeople = repository.findAll();
-        return allPeople.stream()
-                .map(personMapper::toDTO)
+    public CollectionModel<EntityModel<Person>> listAll() throws PersonNotFoundException {
+        List<EntityModel<Person>> allPeople = repository.findAll()
+                .stream()
+                .map(personModelAssembler::toModel)
                 .collect(Collectors.toList());
+
+        return CollectionModel.of(allPeople, linkTo(methodOn(PersonController.class).listAll())
+                .withSelfRel());
     }
 
-
-
     public EntityModel<Person> findById(Long id) throws PersonNotFoundException {
-
-        verifyIfExists(id);
-        Optional<Person> student = repository.findById(id);
-
-        EntityModel<Person> resource = EntityModel.of(student.get());
-
-        Link linkTo = linkTo(methodOn(this.getClass()).listAll()).withRel("persons");
-
-        resource.add(linkTo);
-
-        return resource;
+        Person person = verifyIfExists(id);
+        return personModelAssembler.toModel(person);
     }
 
     public void deleteById(Long id) throws PersonNotFoundException {

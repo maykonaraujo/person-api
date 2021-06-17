@@ -6,11 +6,13 @@ import one.digitalinnovation.personapi.entity.Person;
 import one.digitalinnovation.personapi.exception.PersonNotFoundException;
 import one.digitalinnovation.personapi.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -32,7 +34,7 @@ public class PersonController {
     }
 
     @GetMapping
-    public List<PersonDTO> listAll() throws PersonNotFoundException {
+    public CollectionModel<EntityModel<Person>> listAll() throws PersonNotFoundException {
         return service.listAll();
     }
 
